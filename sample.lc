@@ -1,0 +1,15 @@
+#!/usr/bin/logicc
+
+// This is a sample source file of Logic language.
+
+header logic.io;
+header logic.sys;
+
+call logic.io;
+
+@entry::0
+global int entry(list args)
+{
+	conoutln("Hello world.");
+	ret 0;
+}
