@@ -10,15 +10,22 @@ else
 endif
 
 LD		= ld
-CFLAGS	= -c -std=gnu23 -Wall -O2
+CFLAGS	= -c -std=gnu23 -Wall -O2 -I./include
 TARGET	= bin/logicc
+OBJS	= obj/main.o obj/compiler.o obj/shell.o
 
 all:	bin/logicc
 
-bin/logicc:	obj/main.o
-	$(CC) $< -o $@
+bin/logicc:	$(OBJS)
+	$(CC) $(OBJS) -lreadline -o $@
 
 obj/main.o:	src/main.c
+	$(CC) $(CFLAGS) $< -o $@
+
+obj/compiler.o:	src/compiler.c
+	$(CC) $(CFLAGS) $< -o $@
+
+obj/shell.o:	src/shell.c
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:

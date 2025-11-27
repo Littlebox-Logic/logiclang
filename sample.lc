@@ -7,8 +7,8 @@ header logic.sys;
 
 call logic.io;
 
-@entry::0
-global int entry(list args)
+@entry::thread(0)
+global int entry(list<str> args)
 {
 	conoutln("Hello world.");
 	ret 0;
