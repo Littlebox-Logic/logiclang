@@ -39,7 +39,7 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	fclose(src_main);
 	src_code[src_length] = '\0';
 
-	preprocess(src_file);
+	preprocess(src_code);
 	// asm_build(src_file, tgt_file, NULL);
 
 	return 0;

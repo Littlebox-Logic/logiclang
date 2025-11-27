@@ -12,7 +12,14 @@ else
 endif
 
 LD		= ld
-CFLAGS	= -c -std=gnu23 -fshort-enums -Wall -O2 -I./include
+DEBUG	?= false
+
+ifeq ($(DEBUG), false)
+	CFLAGS = -c -std=gnu23 -fshort-enums -Wall -O2 -I./include
+else
+	CFLAGS = -c -std=gnu23 -fshort-enums -Wall -O2 -I./include -g
+endif
+
 TARGET	= bin/logicc
 OBJS	= obj/main.o obj/compiler.o obj/shell.o obj/asmbuild.o obj/preprocess.o
 INCS	= include/logic/asmbuild.h include/logic/AST.h include/logic/compiler.h include/logic/preprocess.h include/logic/shell.h
