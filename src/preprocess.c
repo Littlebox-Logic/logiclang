@@ -22,7 +22,7 @@ int preprocess(const char *src_code)
 
 	for (size_t pos = 0; pos < total_length; pos ++)
 	{
-		if (pos + 5 < total_length && !strncmp(src_code + pos, "header", 6) && (pos == 0 || isspace((unsigned char)src_code[pos - 1]) || src_code[pos-1] == '\n'))
+		if (!strncmp(src_code + pos, "header", 6) && (pos == 0 || isspace((unsigned char)src_code[pos - 1])))
 		{
 			pos += 6;
 			subpos = 0;
@@ -35,11 +35,10 @@ int preprocess(const char *src_code)
 			new_header -> next = NULL;
 			new_header -> path[0] = '\0';
 
-			while (pos < total_length && (src_code[pos] == ' ' || src_code[pos] == '\t' || src_code[pos] == '\r'))
-				pos++;
+			while (pos < total_length && isspace((unsigned char)src_code[pos]))	pos ++;
 			if (pos >= total_length || src_code[pos] == '\n')
 			{
-				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> header missing path.\n", line, line_offset);
+				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Header missing path.\n", line, line_offset);
 				free(new_header);
 				return EXIT_FAILURE;
 			}
@@ -48,7 +47,7 @@ int preprocess(const char *src_code)
 			{
 				if (subpos >= MAX_PATH_LENGTH - 1)
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> header file path length is too long.", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Header file path length is too long.", line, line_offset);
 					free(new_header);
 					return EXIT_FAILURE;
 				}
@@ -68,23 +67,25 @@ int preprocess(const char *src_code)
 
 				else if (src_code[pos] == '\n')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> invalid newline within header path.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid newline within header path.\n", line, line_offset);
 					free(new_header);
 					return EXIT_FAILURE;
 				}
+
 				else if (src_code[pos] == ' ' || src_code[pos] == '\t' || src_code[pos] == '\r')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> invalid space inside header path.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid space inside header path.\n", line, line_offset);
 					free(new_header);
 					return EXIT_FAILURE;
 				}
+
 				else
 				{
 					if (isalnum((unsigned char)src_code[pos]) || src_code[pos] == '.' || src_code[pos] == '/' || src_code[pos] == '_' || src_code[pos] == '-')
-						new_header -> path[subpos ++] = src_code[pos++];
+						new_header -> path[subpos ++] = src_code[pos ++];
 					else
 					{
-						fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> invalid character '%c' in header path.\n", line, line_offset, src_code[pos]);
+						fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid character '%c' in header path.\n", line, line_offset, src_code[pos]);
 						free(new_header);
 						return EXIT_FAILURE;
 					}
@@ -97,11 +98,52 @@ int preprocess(const char *src_code)
 			headers = new_header;
 		}
 
+		else if (!strncmp(src_code + pos, "@entry", 6) && (pos == 0 || isspace((unsigned char)src_code[pos - 1])))
+		{
+			pos += 6;
+			while (isspace((unsigned char)src_code[pos ++]))
+			{
+				line_offset ++;
+				if (src_code[pos] == '\n')
+				{
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
+					return EXIT_FAILURE;
+				}
+				else if (pos >= total_length)
+				{
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: <Pre-process> Unexpected end of file after '@entry'.\n");
+					return EXIT_FAILURE;
+				}
+			}
+			if (strncmp(src_code + pos - 1, "::", 2))
+			{
+				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
+				return EXIT_FAILURE;
+			}
+
+			pos += 2;
+			while (pos < total_length && isspace((unsigned char)src_code[pos]))
+			{
+				pos ++;
+				line_offset ++;
+				if (src_code[pos] == '\n')
+				{
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry ::' missing property after it.\n", line, line_offset);
+					return EXIT_FAILURE;
+				}
+			}
+
+			if (pos >= total_length)
+			{
+				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: <Pre-process> Unexpected end of file after '@entry ::'.\n");
+				return EXIT_FAILURE;
+			}
+		}
+
 		else if (pos + 1 < total_length && !strncmp(src_code + pos, "//", 2))
 		{
 			pos += 2;
-			while (pos < total_length && src_code[pos] != '\n')
-				pos++;
+			while (pos < total_length && src_code[pos] != '\n')	pos ++;
 		}
 
 		else if (pos + 1 < total_length && !strncmp(src_code + pos, "/*", 2))
@@ -124,13 +166,7 @@ int preprocess(const char *src_code)
 			}
 			pos += 2;
 		}
-
-		else if (src_code[pos] == '\n')
-		{
-			line_offset = pos + 1;
-			line ++;
-		}
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }

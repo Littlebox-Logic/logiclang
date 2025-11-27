@@ -7,6 +7,7 @@
 
 #include <logic/asmbuild.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int asm_build(const char *src_file, const char *tgt_file, AST astree)
 {
@@ -15,7 +16,7 @@ int asm_build(const char *src_file, const char *tgt_file, AST astree)
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to access file \"%s\": ", tgt_file);
 		perror("");
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	fprintf(target, "\t.file\t\"%s\"\n\t.text\n\t.globl %s\n\n\
@@ -30,5 +31,5 @@ int asm_build(const char *src_file, const char *tgt_file, AST astree)
 			astree -> function -> name, astree -> function -> name);
 
 	fclose(target);
-	return 0;
+	return EXIT_SUCCESS;
 }

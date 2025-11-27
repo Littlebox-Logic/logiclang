@@ -36,7 +36,7 @@ int main(int argc, char *argv[], char **envp)
 	{
 		VER_INFO();
 		logic_shell();
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	for (size_t arg_index = 1; arg_index < argc; arg_index ++)
@@ -51,17 +51,17 @@ int main(int argc, char *argv[], char **envp)
 	if (!src_file)
 	{
 		fprintf(stderr, "logicc: ERROR: No source file INPUT.\n");
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	build(argv[src_file], tgt_file ? argv[tgt_file] : "a.out", asm_only);
-	return 0;
+	return EXIT_SUCCESS;
 
 VERN_INFO:
 	VER_INFO();
-	return 0;
+	return EXIT_SUCCESS;
 HELP_INFO:
 	VER_INFO();
 	printf("\nUsage:\n    logicc [Args] <source file>\n\nArgs:\n    -h/--help\t\t: Get HELP infomation.\n    -v/--version\t: Get VERSION infomation.\n    -o/--output <file>\t: Set OUTPUT FILE (default: a.out)\n    -s/--asm\t\t: Output ASSEMBLY source code only.\n");
-	return 0;
+	return EXIT_SUCCESS;
 }
