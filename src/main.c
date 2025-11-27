@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char **envp)
 		return 0;
 	}
 
-	compile(argv[src_file], tgt_file ? argv[tgt_file] : "a.out", asm_only);
+	build(argv[src_file], tgt_file ? argv[tgt_file] : "a.out", asm_only);
 	return 0;
 
 VERN_INFO:

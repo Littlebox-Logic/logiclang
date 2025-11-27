@@ -10,6 +10,6 @@
 
 #include <stdbool.h>
 
-int compile(const char *, const char *, bool);
+int build(const char *, const char *, bool);
 
 #endif
