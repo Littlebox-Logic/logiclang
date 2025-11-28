@@ -133,7 +133,7 @@ AST AST_generate(FILE *code)
 					free(astree);
 					return NULL;
 				}
-				strcpy(astree -> entry -> name, "mainx");
+				strcpy(astree -> entry -> name, "main");
 				astree -> entry -> rtn_type	= INT32;
 				astree -> entry -> paras	= NULL;
 				astree -> entry -> addr		= NULL;
@@ -196,6 +196,18 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 		return EXIT_FAILURE;
 	}
 	asm_build(src_file, tgt_file, astree);
+
+	if (asm_only)
+	{
+		printf("Assembly source code generated at \"%s\".\n", tgt_file);
+	}
+	else
+	{
+		char cmd_buffer[512];
+		snprintf(cmd_buffer, sizeof(cmd_buffer), "gcc -no-pie -o %s.out %s", src_file, tgt_file);
+		system(cmd_buffer);
+		printf("Executable generated at \"%s.out\".\n", src_file);
+	}
 
 	/* Clean up AST. */
 	if (astree)

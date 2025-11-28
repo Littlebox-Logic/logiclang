@@ -80,7 +80,6 @@ FILE *preprocess(const char *src_code)
 		perror("");
 		return NULL;
 	}
-	/* style checks are handled separately by scripts/style_check.sh */
 
 	for (size_t pos = 0; pos < total_length; pos ++)
 	{
@@ -105,6 +104,7 @@ FILE *preprocess(const char *src_code)
 				pos ++;
 				col ++;
 			}
+
 			if (pos >= total_length || src_code[pos] == '\n')
 			{
 				free(new_header);
@@ -211,14 +211,12 @@ FILE *preprocess(const char *src_code)
 			while (pos < total_length && src_code[pos] != ')')
 			{
 				if (src_code[pos] == '\n')
-				{
 					return preproc_error(pproc_file, line, col, "line %zu, col: %zu: <Pre-process> Invalid newline inside property argument.\n", line, col);
-				}
+
 
 				if (pa_idx + 1 >= sizeof(prop_args))
-				{
 					return preproc_error(pproc_file, line, col, "line %zu, col: %zu: <Pre-process> Property argument too long.\n", line, col);
-				}
+
 				prop_args[pa_idx ++] = src_code[pos ++];
 				col ++;
 			}
