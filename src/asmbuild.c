@@ -16,6 +16,13 @@
 int asm_build(const char *src_file, const char *tgt_file, AST astree)
 {
 	FILE *target;
+
+	if (!astree || !(astree -> entry))
+	{
+		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Invalid AST: no entry function found.\n");
+		return EXIT_FAILURE;
+	}
+
 	if (!(target = fopen(tgt_file, "w")))
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to access file \"%s\": ", tgt_file);

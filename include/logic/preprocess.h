@@ -18,7 +18,7 @@ typedef struct _Header
 	struct _Header *next;
 }	_header, *header;
 
-int header_inc(const char *, FILE *);
-int preprocess(const char *, FILE *);
+FILE *header_inc(const char *);
+FILE *preprocess(const char *);
 
 #endif

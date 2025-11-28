@@ -17,10 +17,14 @@
  * Function		: AST_generate
  * Description	: control code -> AST tree.
  */
-int AST_generate(FILE *code, AST astree)
+AST AST_generate(FILE *code)
 {
-	size_t code_length = 0;
-	char *code_buffer;
+	size_t code_length		= 0;
+	size_t ast_next_count	= 1;
+	char *code_buffer		= NULL;
+	AST astree				= NULL;
+
+	if (!code) return NULL;
 
 	fseek(code, 0, SEEK_END);
 	code_length = ftell(code);
@@ -28,29 +32,31 @@ int AST_generate(FILE *code, AST astree)
 	if (code_length == 0)
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Empty pre-processed control code file provided for AST generation.\n");
-		return EXIT_FAILURE;
+		return NULL;
 	}
 
 	if (!(code_buffer = (char *)malloc(code_length + 1)))
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for reading pre-processed control code: ");
 		perror("");
-		return EXIT_FAILURE;
+		return NULL;
 	}
 
 	code_buffer[code_length] = '\0';
 	fread(code_buffer, 1, code_length, code);
-	if (!(astree = (AST)malloc(sizeof(_AST))))
+
+	if (!(astree = (AST)malloc(sizeof(_AST) + ast_next_count * sizeof(struct _AST_Node *))))
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for AST root node: ");
 		perror("");
-		return EXIT_FAILURE;
+		free(code_buffer);
+		return NULL;
 	}
 	astree -> entry = NULL;
 	astree -> variable = NULL;
 	astree -> next[0] = NULL;
 
-	for (size_t index = 0; index < strlen(code_buffer); index ++)
+	for (size_t index = 0; index < code_length; index ++)
 	{
 		switch (code_buffer[index])
 		{
@@ -123,18 +129,21 @@ int AST_generate(FILE *code, AST astree)
 				{
 					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for AST entry function node: ");
 					perror("");
-					return EXIT_FAILURE;
+					free(code_buffer);
+					free(astree);
+					return NULL;
 				}
-				strcpy(astree -> entry -> name, "main");
-				astree -> entry -> rtn_type = INT32;
-				astree -> entry -> paras = NULL;
-				astree -> entry -> addr = NULL;
+				strcpy(astree -> entry -> name, "mainx");
+				astree -> entry -> rtn_type	= INT32;
+				astree -> entry -> paras	= NULL;
+				astree -> entry -> addr		= NULL;
 				break;
 			default: break;
 		}
 	}
 
-	return EXIT_SUCCESS;
+	free(code_buffer);
+	return astree;
 }
 
 /*
@@ -148,6 +157,8 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	FILE	*ppro_file	= NULL;
 	AST		astree		= NULL;
 	size_t	src_length	= 0;
+
+	header  headers     = NULL;
 
 	if (!(src_main = fopen(src_file, "r")))
 	{
@@ -170,9 +181,48 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	fclose(src_main);
 	src_code[src_length] = '\0';
 
-	preprocess(src_code, ppro_file);
-	AST_generate(ppro_file, astree);
-	// asm_build(src_file, tgt_file, NULL);
+	headers = preprocess(src_code, &ppro_file);
+	if (!ppro_file)
+	{
+		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Preprocessing failed.\n");
+		free(src_code);
+		return EXIT_FAILURE;
+	}
 
+	astree = AST_generate(ppro_file);
+	if (!astree)
+	{
+		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: AST generation failed.\n");
+		fclose(ppro_file);
+		free(src_code);
+		return EXIT_FAILURE;
+	}
+	asm_build(src_file, tgt_file, astree);
+
+	/* Clean up AST. */
+	if (astree)
+	{
+		if (astree -> entry)
+		{
+			free(astree -> entry);
+			astree -> entry = NULL;
+		}
+		free(astree);
+	}
+
+	fclose(ppro_file);
+	free(src_code);
+
+	/* Free header list returned by preprocess */
+	if (headers)
+	{
+		header cur = headers;
+		while (cur)
+		{
+			header nxt = cur->next;
+			free(cur);
+			cur = nxt;
+		}
+	}
 	return EXIT_SUCCESS;
 }

@@ -41,7 +41,7 @@ $(TARGET): $(OBJFILES) $(INCS)
 	$(CC) $(OBJFILES) $(LDFLAGS) -o $@
 
 obj/%$(OBJ_EXT):	src/%.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
 	rm -rf obj/*
