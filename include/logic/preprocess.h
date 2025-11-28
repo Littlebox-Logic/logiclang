@@ -10,12 +10,15 @@
 
 #define MAX_PATH_LENGTH 256
 
+#include <stdio.h>
+
 typedef struct _Header
 {
 	char path[MAX_PATH_LENGTH];
 	struct _Header *next;
 }	_header, *header;
 
-int preprocess(const char *);
+int header_inc(const char *, FILE *);
+int preprocess(const char *, FILE *);
 
 #endif

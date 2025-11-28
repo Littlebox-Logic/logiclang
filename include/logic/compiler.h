@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 
+int AST_generate(FILE *, AST);
 int build(const char *, const char *, bool);
 
 #endif

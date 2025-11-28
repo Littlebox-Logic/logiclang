@@ -33,19 +33,19 @@ typedef struct
 	char		name[32];
 }	_func, *func;
 
-typedef struct _AST_Node
+typedef struct _AST_Subs_Node
 {
 	func		function;
 	var			variable;
 	struct _AST_Node *parent;
 	struct _AST_Node *next[];
-}	_AST, *AST;
+}	_AST_Node, *AST_Node;
 
 typedef struct _AST_Root_Node
 {
 	func		entry;
 	var			variable;
 	struct _AST_Node *next[];
-}	_AST_Root, *AST_Root;
+}	_AST, *AST;
 
 #endif

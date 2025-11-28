@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+ * Function		: asm_build
+ * Description	: AST tree -> assembly file.
+ */
 int asm_build(const char *src_file, const char *tgt_file, AST astree)
 {
 	FILE *target;
@@ -24,12 +28,11 @@ int asm_build(const char *src_file, const char *tgt_file, AST astree)
 \tmovq\t%%rsp, %%rbp\n\n\
 \tmovl\t%%edi, -4(%%rbp)\n\
 \tmovl\t%%rsi, -16(%%rbp)\n\
-\tmovl\t%%rdx, -24(%%rbp)\n\n", src_file, astree -> function -> name, astree -> function -> name);
+\tmovl\t%%rdx, -24(%%rbp)\n\n", src_file, astree -> entry -> name, astree -> entry -> name);
 	;
 	fprintf(target, "\tmovl\t$0, %%eax\n\tpopq\t%%rbp\n\
 \tret\n\n\t.size\t%s, .-%s\n.ident\t\"<Logic Compiler>\"",\
-			astree -> function -> name, astree -> function -> name);
-
+			astree -> entry -> name, astree -> entry -> name);
 	fclose(target);
 	return EXIT_SUCCESS;
 }

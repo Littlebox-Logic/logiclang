@@ -13,9 +13,34 @@
 #include <logic/asmbuild.h>
 #include <logic/AST.h>
 
-int AST_generate(const char *code, AST_Root astree)
+/*
+ * Function		: AST_generate
+ * Description	: control code -> AST tree.
+ */
+int AST_generate(FILE *code, AST astree)
 {
-	if (!(astree = (AST_Root)malloc(sizeof(_AST_Root))))
+	size_t code_length = 0;
+	char *code_buffer;
+
+	fseek(code, 0, SEEK_END);
+	code_length = ftell(code);
+	fseek(code, 0, SEEK_SET);
+	if (code_length == 0)
+	{
+		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Empty pre-processed control code file provided for AST generation.\n");
+		return EXIT_FAILURE;
+	}
+
+	if (!(code_buffer = (char *)malloc(code_length + 1)))
+	{
+		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for reading pre-processed control code: ");
+		perror("");
+		return EXIT_FAILURE;
+	}
+
+	code_buffer[code_length] = '\0';
+	fread(code_buffer, 1, code_length, code);
+	if (!(astree = (AST)malloc(sizeof(_AST))))
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for AST root node: ");
 		perror("");
@@ -25,9 +50,9 @@ int AST_generate(const char *code, AST_Root astree)
 	astree -> variable = NULL;
 	astree -> next[0] = NULL;
 
-	for (size_t index = 0; index < strlen(code); index ++)
+	for (size_t index = 0; index < strlen(code_buffer); index ++)
 	{
-		switch (code[index])
+		switch (code_buffer[index])
 		{
 			case IF: break;
 			case ELSE: break;
@@ -112,11 +137,17 @@ int AST_generate(const char *code, AST_Root astree)
 	return EXIT_SUCCESS;
 }
 
+/*
+ * Function		: build
+ * Description	: source file -> assembly file.
+ */
 int build(const char *src_file, const char *tgt_file, bool asm_only)
 {
-	FILE	*src_main;
-	size_t	src_length;
-	char	*src_code;
+	char	*src_code	= NULL;
+	FILE	*src_main	= NULL;
+	FILE	*ppro_file	= NULL;
+	AST		astree		= NULL;
+	size_t	src_length	= 0;
 
 	if (!(src_main = fopen(src_file, "r")))
 	{
@@ -139,7 +170,8 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	fclose(src_main);
 	src_code[src_length] = '\0';
 
-	preprocess(src_code);
+	preprocess(src_code, ppro_file);
+	AST_generate(ppro_file, astree);
 	// asm_build(src_file, tgt_file, NULL);
 
 	return EXIT_SUCCESS;

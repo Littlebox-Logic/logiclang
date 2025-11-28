@@ -16,6 +16,10 @@
 #include <readline/history.h>
 #endif
 
+/*
+ * Function		: logic_shell
+ * Description	: interactive shell for Logic language.
+ */
 int logic_shell(void)
 {
 	#ifdef _WIN32
