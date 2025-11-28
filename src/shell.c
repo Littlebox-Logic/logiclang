@@ -12,8 +12,13 @@
 #include <string.h>
 
 #ifndef _WIN32
+#ifdef __APPLE__
+#include <editline/readline.h>
+#include <editline/history.h>
+#else
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 #endif
 
 /*

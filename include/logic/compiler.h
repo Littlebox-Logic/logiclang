@@ -8,6 +8,7 @@
 #ifndef LOGIC_COMPILER_H
 #define LOGIC_COMPILER_H
 
+#include <logic/AST.h>
 #include <stdbool.h>
 
 int AST_generate(FILE *, AST);

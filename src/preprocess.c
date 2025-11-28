@@ -68,7 +68,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 			while (pos < total_length && isspace((unsigned char)src_code[pos]))	pos ++;
 			if (pos >= total_length || src_code[pos] == '\n')
 			{
-				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Header missing path.\n", line, line_offset);
+				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> Header missing path.\n", line, line_offset);
 				free(new_header);
 				fclose(pproc_file);
 				return EXIT_FAILURE;
@@ -78,7 +78,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 			{
 				if (subpos >= MAX_PATH_LENGTH - 1)
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Header file path length is too long.", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> Header file path length is too long.", line, line_offset);
 					free(new_header);
 					fclose(pproc_file);
 					return EXIT_FAILURE;
@@ -100,7 +100,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 
 				else if (src_code[pos] == '\n')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid newline within header path.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> Invalid newline within header path.\n", line, line_offset);
 					free(new_header);
 					fclose(pproc_file);
 					return EXIT_FAILURE;
@@ -108,7 +108,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 
 				else if (src_code[pos] == ' ' || src_code[pos] == '\t' || src_code[pos] == '\r')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid space inside header path.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> Invalid space inside header path.\n", line, line_offset);
 					free(new_header);
 					fclose(pproc_file);
 					return EXIT_FAILURE;
@@ -120,7 +120,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 						new_header -> path[subpos ++] = src_code[pos ++];
 					else
 					{
-						fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> Invalid character '%c' in header path.\n", line, line_offset, src_code[pos]);
+						fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> Invalid character '%c' in header path.\n", line, line_offset, src_code[pos]);
 						free(new_header);
 						fclose(pproc_file);
 						return EXIT_FAILURE;
@@ -150,7 +150,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 				line_offset ++;
 				if (src_code[pos] == '\n')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
 					fclose(pproc_file);
 					return EXIT_FAILURE;
 				}
@@ -163,7 +163,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 			}
 			if (strncmp(src_code + pos - 1, "::", 2))
 			{
-				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
+				fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> '@entry' missing '::' after it.\n", line, line_offset);
 				fclose(pproc_file);
 				return EXIT_FAILURE;
 			}
@@ -175,7 +175,7 @@ int preprocess(const char *src_code, FILE *pproc_file)
 				line_offset ++;
 				if (src_code[pos] == '\n')
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %lu, col: %lu: <Pre-process> '@entry ::' missing property after it.\n", line, line_offset);
+					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: line %zu, col: %zu: <Pre-process> '@entry ::' missing property after it.\n", line, line_offset);
 					fclose(pproc_file);
 					return EXIT_FAILURE;
 				}

@@ -1,0 +1,14 @@
+"filename", "language", "Markdown", "Makefile", "C++", "C", "comment", "blank", "total"
+"/home/logic/dev/logiclang/Makefile", "Makefile", 0, 34, 0, 0, 4, 13, 51
+"/home/logic/dev/logiclang/README.md", "Markdown", 4, 0, 0, 0, 0, 4, 8
+"/home/logic/dev/logiclang/include/logic/AST.h", "C++", 0, 0, 38, 0, 6, 8, 52
+"/home/logic/dev/logiclang/include/logic/asmbuild.h", "C++", 0, 0, 5, 0, 6, 5, 16
+"/home/logic/dev/logiclang/include/logic/compiler.h", "C++", 0, 0, 6, 0, 6, 5, 17
+"/home/logic/dev/logiclang/include/logic/preprocess.h", "C++", 0, 0, 12, 0, 6, 7, 25
+"/home/logic/dev/logiclang/include/logic/shell.h", "C++", 0, 0, 4, 0, 6, 4, 14
+"/home/logic/dev/logiclang/src/asmbuild.c", "C", 0, 0, 0, 25, 10, 4, 39
+"/home/logic/dev/logiclang/src/compiler.c", "C", 0, 0, 0, 149, 15, 15, 179
+"/home/logic/dev/logiclang/src/main.c", "C", 0, 0, 0, 51, 6, 11, 68
+"/home/logic/dev/logiclang/src/preprocess.c", "C", 0, 0, 0, 187, 14, 22, 223
+"/home/logic/dev/logiclang/src/shell.c", "C", 0, 0, 0, 33, 10, 7, 50
+"Total", "-", 4, 34, 65, 445, 89, 105, 742
