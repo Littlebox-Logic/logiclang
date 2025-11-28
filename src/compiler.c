@@ -158,8 +158,6 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	AST		astree		= NULL;
 	size_t	src_length	= 0;
 
-	header  headers     = NULL;
-
 	if (!(src_main = fopen(src_file, "r")))
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Couldn't read file \"%s\": ", src_file);
@@ -181,7 +179,7 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	fclose(src_main);
 	src_code[src_length] = '\0';
 
-	headers = preprocess(src_code, &ppro_file);
+	ppro_file = preprocess(src_code);
 	if (!ppro_file)
 	{
 		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Preprocessing failed.\n");
@@ -213,16 +211,5 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	fclose(ppro_file);
 	free(src_code);
 
-	/* Free header list returned by preprocess */
-	if (headers)
-	{
-		header cur = headers;
-		while (cur)
-		{
-			header nxt = cur->next;
-			free(cur);
-			cur = nxt;
-		}
-	}
 	return EXIT_SUCCESS;
 }

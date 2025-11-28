@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char **envp)
 		return EXIT_SUCCESS;
 	}
 
-	build(argv[src_file], tgt_file ? argv[tgt_file] : "untitled.asm", asm_only);
+	build(argv[src_file], tgt_file ? argv[tgt_file] : "untitled.s", asm_only);
 	return EXIT_SUCCESS;
 
 VERN_INFO:
