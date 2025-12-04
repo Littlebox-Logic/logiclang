@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 
-typedef uint32_t Keybit32;
-
 typedef enum
 {
 	STATIC	, EXTERN	, INTERN	, INLINE	, GLOBAL	, BELONG	, BLOCK		, RKILL		, RLOCK		,
@@ -23,7 +21,7 @@ typedef enum
 	GOTO	, SIZEOF	, LENOF		, TYPEOF	, MALLOC	, DESTROY	, INSTAN	, ASM		, CONVERT	,
 	RENAME	, PUBLIC	, PRIVATE	, PROTECT	, READONLY	, STRICT	, ENVCHK	, CONST		, VAR		,
 	EVAL	, KW_NULL	, KW_EOF	, RESIZE	, IF		, ELSE		, ELIF		, WHILE		, DOWHILE	,
-	FOR		, FORMAP	, BREAK		, CONTINUE	, SWITCH	, CASE		, DEFAULT
+	FOR		, FORMAP	, BREAK		, CONTINUE	, SWITCH	, CASE		, DEFAULT	, NOTKEY;
 }	Keyword;
 
 typedef enum
@@ -41,5 +39,8 @@ typedef struct
 	size_t	col;
 	Tokentype type;
 }	_Token, *Token;
+
+Keyword keyword_check(const char *, size_t);
+Token token_stream(const char *);
 
 #endif

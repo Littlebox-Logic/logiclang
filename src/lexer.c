@@ -9,34 +9,11 @@
 #include <logic/preprocess.h>
 #include <ctype.h>
 
-int lexi_append(Wordlist list, Wordtype type, void *value, size_t line, size_t col)
-{
-	Word new_node = NULL;
-	if (!(list -> head = (Word)malloc(sizeof(_Word))))
-	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for new word node.\n");
-		return EXIT_FAILURE;
-	}
-
-	new_node -> type	= type;
-	new_node -> value	= value;
-	new_node -> line	= line;
-	new_node -> col		= col;
-	new_node -> next	= NULL;
-
-	if (!list -> head)	list -> tail = list -> head = new_node;
-	else				list -> tail = list -> tail -> next = new_node;
-
-	list -> length ++;
-	return EXIT_SUCCESS;
-}
-
-void error_report(const char *msg);
-
 Keyword keyword_check(const char *word, size_t wordlen)
 {
 	uint16_t wordbyte16;
 	uint32_t wordbyte32;
+	uint64_t wordbyte64;
 
 	switch (wordlen)
 	{
@@ -44,7 +21,7 @@ Keyword keyword_check(const char *word, size_t wordlen)
 			if (word[0] == 'i' && word[1] == 'f')	return IF;
 			return NOTKEY;
 		case 3:
-			wordbyte16 = *(const uint16_t *)word;
+			wordbyte16 = (uint16_t)(unsigned char)word[1] << 8 | (uint16_t)(unsigned char)word[2];
 			switch (word[0])
 			{
 				case 'a':
@@ -66,7 +43,9 @@ Keyword keyword_check(const char *word, size_t wordlen)
 					return NOTKEY;
 			}
 		case 4:
-			wordbyte32 = *(const uint32_t *)word & 0x00ffffff;
+			wordbyte32 = (uint32_t)(unsigned char)word[1] << 16 |
+						 (uint32_t)(unsigned char)word[2] << 8  |
+						 (uint32_t)(unsigned char)word[3];
 			switch (word[0])
 			{
 				case 'b':
@@ -103,7 +82,7 @@ Keyword keyword_check(const char *word, size_t wordlen)
 					return NOTKEY;
 				case 'u':
 					if (wordbyte32 == 0x6e756d)	return UNUM;
-					return NOTKEY
+					return NOTKEY;
 				case 'v':
 					if (wordbyte32 == 0x6f6964)	return VOID;
 					return NOTKEY;
@@ -111,7 +90,10 @@ Keyword keyword_check(const char *word, size_t wordlen)
 					return NOTKEY;
 			}
 		case 5:
-			wordbyte32 = *(const uint32_t *)(word + 1);
+			wordbyte32 = (uint32_t)(unsigned char)word[1] << 24 |
+						 (uint32_t)(unsigned char)word[2] << 16 |
+						 (uint32_t)(unsigned char)word[3] << 8  |
+						 (uint32_t)(unsigned char)word[4];
 			switch (word[0])
 			{
 				case 'a':
@@ -152,27 +134,134 @@ Keyword keyword_check(const char *word, size_t wordlen)
 					return NOTKEY;
 			}
 		case 6:
-			// developing.
-		case 7:
-			// developing.
-		case 8:
-			switch (*(const uint64_t *)word)
+			wordbyte64 = (uint64_t)(unsigned char)word[1] << 32 |
+						 (uint64_t)(unsigned char)word[2] << 24 |
+						 (uint64_t)(unsigned char)word[3] << 16 |
+						 (uint64_t)(unsigned char)word[4] <<  8 |
+						 (uint64_t)(unsigned char)word[5];
+			switch (word[0])
 			{
-				case 0x636f6e74696e7565:	return CONTINUE;
-				case 0x726561646f6e6c79:	return READONLY;
-				default:	return NOTKEY;
+				case 'b':
+					if (wordbyte64 == 0x656c6f6e67)	return BELONG;
+					return NOTKEY;
+				case 'd':
+					if (wordbyte64 == 0x6570656e64)	return DEPEND;
+					return NOTKEY;
+				case 'e':
+					if (wordbyte64 == 0x6e7663686b)	return ENVCHK;
+					if (wordbyte64 == 0x787465726e)	return EXTERN;
+					return NOTKEY;
+				case 'f':
+					if (wordbyte64 == 0x6f726d6170)	return FORMAP;
+					return NOTKEY;
+				case 'g':
+					if (wordbyte64 == 0x6c6f62616c)	return GLOBAL;
+					return NOTKEY;
+				case 'h':
+					if (wordbyte64 == 0x6561646572)	return HEADER;
+					if (wordbyte64 == 0x666c6f6174)	return HFLOAT;
+					return NOTKEY;
+				case 'i':
+					if (wordbyte64 == 0x6e6c696e65)	return INLINE;
+					if (wordbyte64 == 0x6e7374616e)	return INSTAN;
+					if (wordbyte64 == 0x6e7465726e)	return INTERN;
+					if (wordbyte64 == 0x6e74313238)	return INT128;
+					return NOTKEY;
+				case 'l':
+					if (wordbyte64 == 0x696e6b6c73)	return LINKLS;
+					if (wordbyte64 == 0x666c6f6174)	return LFLOAT;
+					return NOTKEY;
+				case 'm':
+					if (wordbyte64 == 0x616c6c6f63)	return MALLOC;
+					if (wordbyte64 == 0x6174726978)	return MATRIX;
+					return NOTKEY;
+				case 'o':
+					if (wordbyte64 == 0x626a656374)	return OBJECT;
+					return NOTKEY;
+				case 'p':
+					if (wordbyte64 == 0x75626c6963)	return PUBLIC;
+					return NOTKEY;
+				case 'r':
+					if (wordbyte64 == 0x656e616d65)	return RENAME;
+					if (wordbyte64 == 0x6573697a65)	return RESIZE;
+					if (wordbyte64 == 0x657475726e)	return RETURN;
+					return NOTKEY;
+				case 's':
+					if (wordbyte64 == 0x6574617272)	return SETARR;
+					if (wordbyte64 == 0x697a656f66)	return SIZEOF;
+					if (wordbyte64 == 0x7461746963)	return STATIC;
+					if (wordbyte64 == 0x7472696374)	return STRICT;
+					if (wordbyte64 == 0x7472696e67)	return STRING;
+					if (wordbyte64 == 0x7472756374)	return STRUCT;
+					if (wordbyte64 == 0x7769746368)	return SWITCH;
+					return NOTKEY;
+				case 't':
+					if (wordbyte64 == 0x656e736f72)	return TENSOR;
+					if (wordbyte64 == 0x6872656164)	return THREAD;
+					if (wordbyte64 == 0x7970656f66)	return TYPEOF;
+					return NOTKEY;
+				case 'u':
+					if (wordbyte64 == 0x696e743136)	return UINT16;
+					if (wordbyte64 == 0x696e743332)	return UINT32;
+					if (wordbyte64 == 0x696e743634)	return UINT64;
+					return NOTKEY;
+				case 'v':
+					if (wordbyte64 == 0x6563746f72)	return VECTOR;
+					return NOTKEY;
+				default:
+					return NOTKEY;
 			}
+		case 7:
+			wordbyte64 = (uint64_t)(unsigned char)word[1] << 40 |
+						 (uint64_t)(unsigned char)word[2] << 32 |
+						 (uint64_t)(unsigned char)word[3] << 24 |
+						 (uint64_t)(unsigned char)word[4] << 16 |
+						 (uint64_t)(unsigned char)word[5] <<  8 |
+						 (uint64_t)(unsigned char)word[6];
+			switch (word[0])
+			{
+				case 'c':
+					if (wordbyte64 == 0x68616e6e656c)	return CHANNEL;
+					if (wordbyte64 == 0x6f6e76657274)	return CONVERT;
+				case 'd':
+					if (wordbyte64 == 0x656661756c74)	return DEFAULT;
+					if (wordbyte64 == 0x657374726f79)	return DESTROY;
+					if (wordbyte64 == 0x6c696e6b6c73)	return DLINKLS;
+					if (wordbyte64 == 0x6f7768696c65)	return DOWHILE;
+					if (wordbyte64 == 0x796d6c697374)	return DYMLIST;
+				case 'p':
+					if (wordbyte64 == 0x726976617465)	return PRIVATE;
+					if (wordbyte64 == 0x726f63657373)	return PROCESS;
+					if (wordbyte64 == 0x726f74656374)	return PROTECT;
+				case 'u':
+					if (wordbyte64 == 0x657374726f79)	return UINT128;
+				default:
+					return NOTKEY;
+			}
+		case 8:
+			wordbyte64 = ((uint64_t)(unsigned char)word[0] << 56 |
+						  (uint64_t)(unsigned char)word[1] << 48 |
+						  (uint64_t)(unsigned char)word[2] << 40 |
+						  (uint64_t)(unsigned char)word[3] << 32 |
+						  (uint64_t)(unsigned char)word[4] << 24 |
+						  (uint64_t)(unsigned char)word[5] << 16 |
+						  (uint64_t)(unsigned char)word[6] << 8  |
+						  (uint64_t)(unsigned char)word[7])
+			if (wordbyte64 == 0x636f6e74696e7565)	return CONTINUE;
+			if (wordbyte64 == 0x726561646f6e6c79)	return READONLY;
+			return NOTKEY;
 		default:	return NOTKEY;
 	}
 }
 
-Token lexi_load(const char *src_code)
+Token token_stream(const char *src_code)
 {
 	static size_t line	 = 1;
 	static size_t colend = 0;
 	static size_t srclen = strlen(src_code);
 	static size_t seek	 = 0;
-	uint32_t
+
+	Keyword keyword_type;
 	Token token;
 
 	if (!(token = (Token)malloc(sizeof(_Token))))
@@ -206,16 +295,8 @@ Token lexi_load(const char *src_code)
 		 || src_code[seek - 1] == '#' && src_code[seek] == '!')
 		{
 			while (src_code[seek] != '\n')
-			{
-				if (++ seek >= srclen)
-				{
-					token -> value	= NULL;
-					token -> line	= line;
-					token -> col	= seek - colend;
-					token -> type	= EOFFILE;
-					return token;
-				}
-			}
+				if (++ seek >= srclen)	goto EOFLABEL;
+
 			line ++;
 			colend = seek;
 		}
@@ -227,11 +308,7 @@ Token lexi_load(const char *src_code)
 				if (++ seek >= srclen)
 				{
 					fprintf(stderr, "logicc: \033[;93mWARN\033[0m: Unexpected EOF before \"*/\".");
-					token -> value	= NULL;
-					token -> line	= line;
-					token -> col	= seek - colend;
-					token -> type	= EOFFILE;
-					return token;
+					goto EOFLABEL;
 				}
 			}
 		}
@@ -245,8 +322,31 @@ Token lexi_load(const char *src_code)
 									||	src_code[seek - 1] >= 'A' && src_code[seek] <= 'Z'
 									||	src_code[seek - 1] >= '0' && src_code[seek] <= '9'
 									||	src_code[seek - 1] == '_')	wordlen ++;
-			keyword_check(src_code + seek, wordlen);
+			if ((keyword_type = keyword_check(src_code + seek, wordlen)) != NOTKEY)
+			{
+				token -> value	= (void *)keyword_type;
+				token -> line	= line;
+				token -> col	= seek - colend;
+				token -> type	= KEYWORD;
+				return token;
+			}
+			else
+			{
+				token -> value	= (char *)malloc(wordlen + 1);
+				strncpy(token -> value, src_code + seek, wordlen)
+				token -> value[wordlen] = '\0';
+				token -> line	= line;
+				token -> col	= seek - colend;
+				token -> type	= IDENTFR;
+				return token;
+			}
 		}
 	}
-}
 
+EOFLABEL:
+	token -> value	= NULL;
+	token -> line	= line;
+	token -> col	= seek - colend;
+	token -> type	= EOFFILE;
+	return token;
+}
