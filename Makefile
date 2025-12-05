@@ -22,7 +22,7 @@ endif
 
 LD			= ld
 DEBUG		?= false
-OBJS		= main compiler shell asmbuild preprocess
+SRCS		= main compiler shell asmbuild preprocess lexer
 
 ifeq ($(DEBUG), false)
 	DEBUG_FLAGS =
@@ -31,14 +31,13 @@ else
 endif
 
 CFLAGS		= -c -std=gnu23 -fshort-enums -Wall -O2 -I./include $(DEBUG_FLAGS)
-OBJS		= obj/main.o obj/compiler.o obj/shell.o obj/asmbuild.o obj/preprocess.o
-INCS		= include/logic/asmbuild.h include/logic/AST.h include/logic/compiler.h include/logic/preprocess.h include/logic/shell.h
-OBJFILES	= $(addsuffix $(OBJ_EXT),$(basename $(OBJS)))
+INCS		= include/logic/asmbuild.h include/logic/AST.h include/logic/compiler.h include/logic/preprocess.h include/logic/shell.h include/logic/lexer.h
+OBJS		= $(addprefix obj/, $(addsuffix $(OBJ_EXT), $(SRCS)))
 
 all:	$(TARGET)
 
-$(TARGET): $(OBJFILES) $(INCS)
-	$(CC) $(OBJFILES) $(LDFLAGS) -o $@
+$(TARGET): $(OBJS) $(INCS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 obj/%$(OBJ_EXT):	src/%.c
 	$(CC) $(CFLAGS) -o $@ $<

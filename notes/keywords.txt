@@ -1,0 +1,30 @@
+File		: keywords.txt
+Date		: 2025.12.03 (Wed) 15:31
+Author	: Logic
+Project	: logiclang (https://github.com/Littlebox-Logic/logiclang)
+
+2: 1
+	if
+3: 5
+	reg	asm	var	eof	for
+4: 18
+	init	this	void	char	byte	int8	unum	bool	enum	file	call	func	goto	eval	null	else	elif	case
+5: 16
+	block	rkill	rlock	float	wchar	int16	int32	int64	uint8	union	array	class	lenof	const	while	break
+6: 35
+	static	extern	intern	inline	global	belong	depend	lfloat	hfloat	int128	uint16	uint32	uint64	linkls	struct	string	setarr	object	thread	matrix	tensor	vector	header	return	sizeof	typeof	malloc	instan	rename	public	strict	envchk	resize	formap	switch
+7: 11
+	uint128	dymlist	dlinkls	channel	process	destroy	convert	private	protect	dowhile	default
+8: 2
+	readonly	continue
+
+const char *keywords[] = {"static"	, "extern", "intern" , "inline"	 , "global"	 , "belong" , "block"  , "rkill" , "rlock"  ,
+						  "reg"		, "init"  , "this"   , "depend"	 , "void"	 , "float"  , "lfloat" , "hfloat", "char"   ,
+						  "wchar"	, "byte"  , "int8"   , "int16"	 , "int32"	 , "int64"  , "int128" , "uint8" , "uint16" ,
+						  "uint32"	, "uint64", "uint128", "unum"	 , "bool"	 , "enum"   , "dymlist", "linkls", "dlinkls",
+						  "struct"	, "union" , "file"   , "channel" , "string"	 , "array"  , "setarr" , "class" , "object" ,
+						  "thread"	, "matrix", "tensor" , "vector"	 , "header"	 , "call"   , "func"   , "return", "process",
+						  "goto"	, "sizeof", "lenof"  , "typeof"  , "malloc"	 , "destroy", "instan" , "asm"   , "convert",
+						  "rename"	, "public", "private", "protect" , "readonly", "strict" , "envchk" , "const" , "var"    ,
+						  "eval"	, "null"  , "eof"	 , "resize"	 , "if"		 , "else"   , "elif"   , "while" , "dowhile",
+						  "for"		, "formap", "break"  , "continue", "switch"	 , "case"	, "default"};

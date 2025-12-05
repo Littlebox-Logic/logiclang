@@ -1,0 +1,21 @@
+/*
+ * File		: include/logic/log.h
+ * Date		: 2025.12.05 (Fri) 14:56
+ * Author	: Logic
+ * Project	: logiclang (https://github.com/Littlebox-Logic/logiclang)
+ */
+
+
+#ifndef LOGIC_LOG_H
+#define LOGIC_LOG_H
+
+#include <stdio.h>
+
+#define ERROR	-1
+#define INFO	 0
+#define WARN	 1
+#define DEBUG	 2
+
+#define Log(level, log_str, lineindex, colindex, ...)	fprintf(stderr, "logicc: \033[;%dm%s\033[0m: line: %zu col: %zu: \033[;97m" log_str "\033[0m\n", level + 92, #level, lineindex, colindex, ##__VA_ARGS__)
+
+#endif

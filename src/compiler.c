@@ -134,7 +134,7 @@ AST AST_generate(FILE *code)
 					return NULL;
 				}
 				strcpy(astree -> entry -> name, "main");
-				astree -> entry -> rtn_type	= INT32;
+				astree -> entry -> rtn_type	= TYPE_INT32;
 				astree -> entry -> paras	= NULL;
 				astree -> entry -> addr		= NULL;
 				break;
