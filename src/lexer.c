@@ -11,16 +11,15 @@
 #include <string.h>
 #include <ctype.h>
 
+const char *operators[] = {"+" , "-" , "*", "/", "%", "^", "->", "." ,
+						   "&&", "||", "!", "&", "|", "~", "=" , "==",
+						   "!=", "@" , "?", ":", ">", "<", ">=", "<="};
+
 /*
  * Function		: keyword_check
  * Description	: Word -> keyword or normal identifier.
  * 				  Matching strings by big-endian hexadecimal integers.
  */
-
-const char *operators[] = {"+" , "-" , "*", "/", "%", "^", "->", "." ,
-						   "&&", "||", "~", "&", "|", "!", "=" , "==",
-						   "!=", "&" , "?", ":", ">", "<", ">=", "<="};
-
 Keyword keyword_check(const char *word, size_t wordlen)
 {
 	uint16_t wordbyte16;
@@ -332,7 +331,7 @@ Token token_stream(const char *src_code)
 		}
 		
 		/* Keywords & identifiers parsing. */
-		if ((src_code[seek - 1] >= 'a' && src_code[seek - 1] <= 'z') || (src_code[seek - 1] >= 'A' && src_code[seek - 1] <= 'Z'))
+		if ((src_code[seek - 1] >= 'a' && src_code[seek - 1] <= 'z') || (src_code[seek - 1] >= 'A' && src_code[seek - 1] <= 'Z') || src_code[seek - 1] == '_')
 		{
 			size_t wordlen = 1;
 			while (seek ++ < srclen	&&	((src_code[seek - 1] >= 'a' && src_code[seek] <= 'z')
@@ -341,7 +340,7 @@ Token token_stream(const char *src_code)
 									||	  src_code[seek - 1] == '_'))	wordlen ++;
 			if ((keyword_type = keyword_check(src_code + seek, wordlen)) != NOTKEY)
 			{
-				token -> value.keyword = keyword_type;
+				token -> value.kw_type = keyword_type;
 				token -> line	= line;
 				token -> col	= seek - colend + 1;
 				token -> type	= KEYWORD;
@@ -409,6 +408,137 @@ Token token_stream(const char *src_code)
 			token -> line	= line;
 			token -> col	= seek - colend + 1;
 			token -> type	= CHARCTR;
+			return token;
+		}
+
+		if (src_code[seek - 1] >= '0' && src_code[seek - 1] <= '9')
+		{
+			size_t int_length = 0;
+			sscanf(src_code + seek - 1, "%i%n", (int *)&token -> value.uinteger, (int *)&int_length);
+			seek += int_length - 1;
+			token -> line	= line;
+			token -> col	= seek - colend + 1;
+			token -> type	= INTEGER;
+			return token;
+		}
+
+		switch (src_code[seek - 1])
+		{
+			case '+':
+				token -> value.op_type = OP_SUB;
+				goto OPLABEL;
+			case '-':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '>' ?	OP_ARW : OP_SUB;
+				goto OPLABEL;
+			case '*':
+				token -> value.op_type = OP_MUL;
+				goto OPLABEL;
+			case '/':
+				token -> value.op_type = OP_DIV;
+				goto OPLABEL;
+			case '%':
+				token -> value.op_type = OP_MOD;
+				goto OPLABEL;
+			case '^':
+				token -> value.op_type = OP_POW;
+				goto OPLABEL;
+			case '.':
+				token -> value.op_type = OP_DOT;
+				goto OPLABEL;
+			case '&':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '&' ? OP_LAD : OP_BAD;
+				goto OPLABEL;
+			case '|':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '|' ? OP_LOR : OP_BOR;
+				goto OPLABEL;
+			case '!':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '=' ? OP_NEQ : OP_LNT;
+				goto OPLABEL;
+			case '~':
+				token -> value.op_type = OP_BNT;
+			case '=':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '=' ? OP_EQU : OP_EVL;
+				goto OPLABEL;
+			case '@':
+				token -> value.op_type = OP_DCR;
+				goto OPLABEL;
+			case '?':
+				token -> value.op_type = OP_QST;
+				goto OPLABEL;
+			case ':':
+				token -> value.op_type = OP_CLN;
+				goto OPLABEL;
+			case '>':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '=' ? OP_GEQ : OP_GTN;
+				goto OPLABEL;
+			case '<':
+				if (seek >= srclen)
+				{
+					Msg(ERROR, "Unexpected EOF after operator.");
+					free(token);
+					return NULL;
+				}
+				token -> value.op_type = src_code[seek ++] == '=' ? OP_LEQ : OP_LTN;
+				goto OPLABEL;
+			case '{':
+				token -> value.general = NULL;
+				token -> line	= line;
+				token -> col	= seek - colend + 1;
+				token -> type	= BLKBEGN;
+			case '}':
+				token -> value.general = NULL;
+				token -> line	= line;
+				token -> col	= seek - colend + 1;
+				token -> type	= BLKTERM;
+				return token;
+			case '(':
+				token -> value.general = NULL;
+				token -> line	= line;
+				token -> col	= seek - colend + 1;
+				token -> type	= LFTBRAC;
+				return token;
+			case ')':
+				token -> value.general = NULL;
+				token -> line	= line;
+				token -> col	= seek - colend + 1;
+				token -> type	= RGTBRAC;
+				return token;
 		}
 	}
 
@@ -417,5 +547,11 @@ EOFLABEL:
 	token -> line	= line;
 	token -> col	= seek - colend + 1;
 	token -> type	= EOFFILE;
+	return token;
+
+OPLABEL:
+	token -> line	= line;
+	token -> col	= seek - colend + 1;
+	token -> type	= OPERATR;
 	return token;
 }

@@ -31,7 +31,14 @@ typedef enum
 
 typedef enum
 {
-	KEYWORD, INTEGER, NEGAINT, IDENTFR,
+	OP_ADD,	OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_POW, OP_ARW, OP_DOT,
+	OP_LAD, OP_LOR, OP_LNT, OP_BAD, OP_BOR, OP_BNT, OP_EVL, OP_EQU,
+	OP_NEQ, OP_DCR, OP_QST, OP_CLN, OP_GTN, OP_LTN, OP_GEQ, OP_LEQ
+}	Operator;
+
+typedef enum
+{
+	KEYWORD, INTEGER, RESERVD, IDENTFR,
 	STRINGV, CHARCTR, PROPRTY, OPERATR,
 	REALNUM, NEGREAL, EOFLINE, EOFFILE,
 	LFTBRAC, RGTBRAC, BLKBEGN, BLKTERM
@@ -43,7 +50,8 @@ typedef union
 	int128_t	integer;
 	void		*general;
 	char		*string;
-	Keyword		keyword;
+	Keyword		kw_type;
+	Operator	op_type;
 	wchar_t		wchar;
 	char		character;
 }	_Value, *Value;

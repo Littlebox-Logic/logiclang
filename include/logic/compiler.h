@@ -10,6 +10,7 @@
 
 #include <logic/AST.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 AST AST_generate(FILE *);
 int build(const char *, const char *, bool);

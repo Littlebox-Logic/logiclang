@@ -17,6 +17,6 @@
 #define DEBUG	 2
 
 #define Log(level, log_str, lineindex, colindex, ...)	fprintf(stderr, "logicc: \033[;%dm%s\033[0m: line: %zu col: %zu: \033[;97m" log_str "\033[0m\n", level + 92, #level, lineindex, colindex, ##__VA_ARGS__)
-#define Msg(level, log_str, ...)	fprintf(stderr, "logicc: \033[;%dm%s\033[0m: \033[;97m" log_str "\033[0m", level + 92, #level, ##__VA_ARGS__)
+#define Msg(level, log_str, ...)	fprintf(stderr, "logicc: \033[;%dm%s\033[0m: \033[;97m" log_str "\033[0m\n", level + 92, #level, ##__VA_ARGS__)
 
 #endif

@@ -55,7 +55,7 @@ FILE *preprocess(const char *src_code)
 		{
 			case KEYWORD:
 			case INTEGER:
-			case NEGAINT:
+			case RESERVD:
 			case IDENTFR:
 			case STRINGV:
 			case CHARCTR:

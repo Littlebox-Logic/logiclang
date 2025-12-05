@@ -6,7 +6,7 @@
  */
 
 #include <logic/asmbuild.h>
-#include <stdio.h>
+#include <logic/log.h>
 #include <stdlib.h>
 
 /*
@@ -19,13 +19,13 @@ int asm_build(const char *src_file, const char *tgt_file, AST astree)
 
 	if (!astree || !(astree -> entry))
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Invalid AST: no entry function found.\n");
+		Msg(ERROR, "Invalid AST: no entry function found.\n");
 		return EXIT_FAILURE;
 	}
 
 	if (!(target = fopen(tgt_file, "w")))
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to access file \"%s\": ", tgt_file);
+		Msg(ERROR, "Failed to access file \"%s\": ", tgt_file);
 		perror("");
 		return EXIT_FAILURE;
 	}

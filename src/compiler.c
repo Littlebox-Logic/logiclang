@@ -5,13 +5,13 @@
  * Project	: logiclang (https://github.com/Littlebox-Logic/logiclang)
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <logic/compiler.h>
 #include <logic/preprocess.h>
 #include <logic/asmbuild.h>
 #include <logic/AST.h>
+#include <logic/log.h>
 
 /*
  * Function		: AST_generate
@@ -31,13 +31,13 @@ AST AST_generate(FILE *code)
 	fseek(code, 0, SEEK_SET);
 	if (code_length == 0)
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Empty pre-processed control code file provided for AST generation.\n");
+		Msg(ERROR, "Empty pre-processed control code file provided for AST generation.\n");
 		return NULL;
 	}
 
 	if (!(code_buffer = (char *)malloc(code_length + 1)))
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for reading pre-processed control code: ");
+		Msg(ERROR, "Failed to allocate memory for reading pre-processed control code: ");
 		perror("");
 		return NULL;
 	}
@@ -47,14 +47,14 @@ AST AST_generate(FILE *code)
 
 	if (!(astree = (AST)malloc(sizeof(_AST) + ast_next_count * sizeof(struct _AST_Node *))))
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for AST root node: ");
+		Msg(ERROR, "Failed to allocate memory for AST root node: ");
 		perror("");
 		free(code_buffer);
 		return NULL;
 	}
-	astree -> entry = NULL;
-	astree -> variable = NULL;
-	astree -> next[0] = NULL;
+	astree -> entry		= NULL;
+	astree -> variable	= NULL;
+	astree -> next[0]	= NULL;
 
 	for (size_t index = 0; index < code_length; index ++)
 	{
@@ -127,7 +127,7 @@ AST AST_generate(FILE *code)
 			case ENTRY:
 				if (!(astree -> entry = (func)malloc(sizeof(_func))))
 				{
-					fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Failed to allocate memory for AST entry function node: ");
+					Msg(ERROR, "Failed to allocate memory for AST entry function node: ");
 					perror("");
 					free(code_buffer);
 					free(astree);
@@ -160,7 +160,7 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 
 	if (!(src_main = fopen(src_file, "r")))
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Couldn't read file \"%s\": ", src_file);
+		Msg(ERROR, "Couldn't read file \"%s\": ", src_file);
 		perror("");
 		return EXIT_FAILURE;
 	}
@@ -182,7 +182,7 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	ppro_file = preprocess(src_code);
 	if (!ppro_file)
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: Preprocessing failed.\n");
+		Msg(ERROR, "Preprocessing failed.\n");
 		free(src_code);
 		return EXIT_FAILURE;
 	}
@@ -190,7 +190,7 @@ int build(const char *src_file, const char *tgt_file, bool asm_only)
 	astree = AST_generate(ppro_file);
 	if (!astree)
 	{
-		fprintf(stderr, "logicc: \033[;91mERROR\033[0m: AST generation failed.\n");
+		Msg(ERROR, "AST generation failed.\n");
 		fclose(ppro_file);
 		free(src_code);
 		return EXIT_FAILURE;
