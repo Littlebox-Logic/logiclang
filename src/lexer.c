@@ -289,11 +289,8 @@ Token token_stream(const char *src_code)
 		return NULL;
 	}
 
-	while (seek <= srclen)
+	while (seek < srclen)
 	{
-		/* End of File (EOF). */
-		if (seek >= srclen)	goto EOFLABEL;
-
 		/* Update index of lines. */
 		if (src_code[seek ++] == '\n')
 		{
@@ -312,19 +309,26 @@ Token token_stream(const char *src_code)
 				if (++ seek >= srclen)	goto EOFLABEL;
 
 			line ++;
-			colend = seek;
+			colend = ++ seek;
 		}
 		if (src_code[seek - 1] == '/' && src_code[seek] == '*')
 		{
 			seek ++;
 			while (!(src_code[seek - 1] == '*' && src_code[seek] == '/'))
 			{
+				if ((src_code[seek]) == '\n')
+				{
+					line ++;
+					colend = seek + 1;
+				}
+
 				if (++ seek >= srclen)
 				{
 					Log(WARN, "Unexpected EOF before \"*/\".", line, seek - colend + 1);
 					goto EOFLABEL;
 				}
 			}
+			seek ++;
 		}
 		
 		/* Keywords & identifiers parsing. */
@@ -337,7 +341,7 @@ Token token_stream(const char *src_code)
 									||	  src_code[seek - 1] == '_'))	wordlen ++;
 			if ((keyword_type = keyword_check(src_code + seek, wordlen)) != NOTKEY)
 			{
-				token -> value	= (void *)keyword_type;
+				token -> value.keyword = keyword_type;
 				token -> line	= line;
 				token -> col	= seek - colend + 1;
 				token -> type	= KEYWORD;
@@ -345,19 +349,71 @@ Token token_stream(const char *src_code)
 			}
 			else
 			{
-				token -> value	= malloc(wordlen + 1);
-				strncpy((char *)token -> value, src_code + seek, wordlen);
-				((char *)token -> value)[wordlen] = '\0';
+				token -> value.string = (char *)malloc(wordlen + 1);
+				strncpy(token -> value.string, src_code + seek, wordlen);
+				token -> value.string[wordlen] = '\0';
 				token -> line	= line;
 				token -> col	= seek - colend + 1;
 				token -> type	= IDENTFR;
 				return token;
 			}
 		}
+
+		/* String. */
+		if (src_code[seek - 1] == '\"')
+		{
+			size_t stringlen = 0;
+			while (src_code[seek] != '\"')
+			{
+				if (src_code[seek] == '\n')
+				{
+					line ++;
+					colend = seek + 1;
+				}
+
+				if (++ seek >= srclen)
+				{
+					Log(ERROR, "Unexpected EOF before the end of string.", line, seek - colend + 1);
+					free(token);
+					return NULL;
+				}
+				stringlen ++;
+			}
+			seek ++;
+			token -> value.string = (char *)malloc(stringlen + 1);
+			strncpy(token -> value.string, src_code + seek, stringlen);
+			token -> value.string[stringlen] = '\0';
+			token -> line	= line;
+			token -> col	= seek - colend + 1;
+			token -> type	= STRINGV;
+			return token;
+		}
+
+		if (src_code[seek - 1] == '\'')
+		{
+			if (seek + 1 >= srclen)
+			{
+				Log(ERROR, "Unexpected EOF before the end of character.", line, seek - colend + 1);
+				free(token);
+				return NULL;
+			}
+			if (src_code[seek] == '\\')	token -> value.character = src_code[++ seek];
+			else if (src_code[seek] == '\n' || src_code[seek] == '\t')
+			{
+				Log(ERROR, "The character format must be \'<CHAR>\'.", line, seek - colend + 1);
+				free(token);
+				return NULL;
+			}
+			else	token -> value.character = src_code[seek];
+			seek += 2;
+			token -> line	= line;
+			token -> col	= seek - colend + 1;
+			token -> type	= CHARCTR;
+		}
 	}
 
 EOFLABEL:
-	token -> value	= NULL;
+	token -> value.general = NULL;
 	token -> line	= line;
 	token -> col	= seek - colend + 1;
 	token -> type	= EOFFILE;

@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <wchar.h>
+
+typedef unsigned __int128	uint128_t;
+typedef __int128			int128_t ;
 
 typedef enum
 {
@@ -33,9 +37,20 @@ typedef enum
 	LFTBRAC, RGTBRAC, BLKBEGN, BLKTERM
 }	Tokentype;
 
+typedef union
+{
+	uint128_t	uinteger;
+	int128_t	integer;
+	void		*general;
+	char		*string;
+	Keyword		keyword;
+	wchar_t		wchar;
+	char		character;
+}	_Value, *Value;
+
 typedef struct
 {
-	void	*value;
+	_Value	value;
 	size_t	line;
 	size_t	col;
 	Tokentype type;
